@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "webds_reflash",
+  "description": "webds_reflash settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
