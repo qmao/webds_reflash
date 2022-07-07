@@ -1,5 +1,5 @@
 {
-  "name": "webds_reflash",
+  "name": "@webds/reflash",
   "version": "0.1.0",
   "description": "A JupyterLab extension.",
   "keywords": [
