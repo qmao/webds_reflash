@@ -82,7 +82,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "jupyterlab": { 
+  "jupyterlab": {
     "extension": true,
     "outputDir": "webds_reflash/labextension",
     "schemaDir": "schema"
