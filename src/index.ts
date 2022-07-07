@@ -4,6 +4,8 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+
 import { WidgetTracker } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
@@ -91,5 +93,4 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default plugin;
 export default plugin;
