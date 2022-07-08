@@ -1,7 +1,6 @@
 import { ReactWidget } from '@jupyterlab/apputils';
 import React  from 'react';
 
-
 import { WebDSService } from '@webds/service';
 import MainWidget from './widget';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -21,7 +20,6 @@ export class ShellWidget extends ReactWidget {
         this.addClass('jp-webds-widget');
         this._service = service;
         this._settingRegistry = settingRegistry || null;
-        console.log("TabPanelUiWidget is created!!!");
     }
 
     handleChangeFile(e: React.ChangeEvent<HTMLInputElement>) {
