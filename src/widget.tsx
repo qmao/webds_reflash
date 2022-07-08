@@ -14,7 +14,7 @@ import {
 export default function MainWidget(
     props: {
         service: WebDSService;
-        settingRegistry?: ISettingRegistry;
+        settingRegistry?: ISettingRegistry | null;
     }
 ) {
 

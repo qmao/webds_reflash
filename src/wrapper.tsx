@@ -15,7 +15,7 @@ export class ShellWidget extends ReactWidget {
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(service: WebDSService, settingRegistry?: ISettingRegistry) {
+    constructor(service: WebDSService, settingRegistry?: ISettingRegistry | null) {
         super();
         this.addClass('jp-webds-widget');
         this._service = service;
