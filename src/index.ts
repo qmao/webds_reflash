@@ -22,12 +22,6 @@ namespace ExtensionParameter {
   export const titleIcon = extensionReflashIcon;
   export const category = 'WebDS';
   export const title = 'Reflash';
-}
-
-/**
- * The command IDs used by the server extension plugin.
- */
-namespace CommandIDs {
   export const id = 'webds:webds-reflash';
 }
 
@@ -49,7 +43,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
-    const command = CommandIDs.id;
+    const command = ExtensionParameter.id;
     const category = ExtensionParameter.category;
     const extension_string = ExtensionParameter.title;
 
