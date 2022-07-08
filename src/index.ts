@@ -16,6 +16,13 @@ import { extensionReflashIcon } from './icons';
 
 import { WebDSService, WebDSWidget } from '@webds/service';
 
+namespace ExtensionParameter {
+  export const name = 'webds-reflash';
+  export const landingIcon = extensionReflashIcon;
+  export const titleIcon = extensionReflashIcon;
+  export const category = 'WebDS';
+  export const title = 'Reflash';
+}
 
 /**
  * The command IDs used by the server extension plugin.
@@ -28,7 +35,7 @@ namespace CommandIDs {
  * Initialization data for the extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: '@webds/webds_reflash:plugin',
+  id: `@webds/${ExtensionParameter.name}:plugin`,
   autoStart: true,
   optional: [ISettingRegistry],
   requires: [ILauncher, ILayoutRestorer, WebDSService],
@@ -38,28 +45,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
     restorer: ILayoutRestorer,
     service: WebDSService,
     settingRegistry: ISettingRegistry | null) => {
-    console.log('JupyterLab extension webds_reflash is activated!');
+    console.log(`JupyterLab extension ${ExtensionParameter.name} is activated!`);
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = CommandIDs.id;
-    const category = 'WebDS'
-    const extension_string = 'Reflash';
+    const category = ExtensionParameter.category;
+    const extension_string = ExtensionParameter.title;
 
 
     commands.addCommand(command, {
       label: extension_string,
       caption: extension_string,
-	  icon: extensionReflashIcon,
+	  icon: ExtensionParameter.landingIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
           let content = new ShellWidget(service, settingRegistry);
 
           widget = new WebDSWidget<ShellWidget>({ content });
-          widget.id = 'webds_reflash_widget';
+          widget.id = `${ExtensionParameter.name}_widget`;
           widget.title.label = extension_string;
           widget.title.closable = true;
-          widget.title.icon = extensionReflashIcon;
+          widget.title.icon = ExtensionParameter.landingIcon;
         }
 
         if (!tracker.has(widget))
@@ -78,8 +85,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: category
     });
 
-    let tracker = new WidgetTracker<WebDSWidget>({ namespace: 'webds_reflash' });
-    restorer.restore(tracker, { command, name: () => 'webds_reflash' });
+    let tracker = new WidgetTracker<WebDSWidget>({ namespace: `${ExtensionParameter.name}` });
+    restorer.restore(tracker, { command, name: () => `${ExtensionParameter.name}` });
   }
 };
 
