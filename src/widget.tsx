@@ -7,14 +7,14 @@ import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import {
     Stack,
     Typography,
-    Box,
+    Paper
 } from '@mui/material';
 
 
 export default function MainWidget(
     props: {
         service: WebDSService;
-        settings?: ISettingRegistry;
+        settingRegistry?: ISettingRegistry;
     }
 ) {
 
@@ -22,13 +22,17 @@ export default function MainWidget(
 
     function ShowContent() {
         return (
-            <div/>
+            <Typography>
+                Content
+            </Typography>
         );
     }
 
     function ShowControl() {
         return (
-           <div/>
+            <Typography>
+                Control
+            </Typography>
         );
     }
 
@@ -38,7 +42,8 @@ export default function MainWidget(
     function showAll() {
         return (
             <Stack spacing={2}>
-                <Box
+                <Paper
+                    elevation={0}
                     sx={{
                         width: WIDTH + "px",
                         height: HEIGHT_TITLE + "px",
@@ -56,8 +61,8 @@ export default function MainWidget(
                         }}
                     >
                         Reflash
-          </Typography>
-                </Box>
+                    </Typography>
+                </Paper>
 
                 <Stack
                     direction="column"
@@ -84,10 +89,10 @@ export default function MainWidget(
                     {ShowControl()}
                 </Stack>
             </Stack>
-
         );
     }
-    
+
+
     return (
         <div className='jp-webds-widget-body'>
             <ThemeProvider theme={webdsTheme}>
