@@ -10,50 +10,40 @@ import { WidgetTracker } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
 
-import { ShellWidget } from './widget'
+import { ShellWidget } from './wrapper'
 
 import { extensionReflashIcon } from './icons';
 
 import { WebDSService, WebDSWidget } from '@webds/service';
 
+
 /**
  * The command IDs used by the server extension plugin.
  */
 namespace CommandIDs {
-  export const reflash = 'webds:reflash';
+  export const id = 'webds:webds-reflash';
 }
 
 /**
- * Initialization data for the webds_reflash extension.
+ * Initialization data for the extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'webds_reflash:plugin',
+  id: '@webds/webds_reflash:plugin',
   autoStart: true,
-  optional: [ISettingRegistry], 
+  optional: [ISettingRegistry],
   requires: [ILauncher, ILayoutRestorer, WebDSService],
-  activate: (
+  activate: async (
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
-	settingRegistry: ISettingRegistry | null,
-	service: WebDSService) => {
-    console.log('JupyterLab extension reflash is activated!');
-
-	if (settingRegistry) {
-      settingRegistry
-        .load(plugin.id)
-        .then(settings => {
-          console.log('webds_reflash settings loaded:', settings.composite);
-        })
-        .catch(reason => {
-          console.error('Failed to load settings for webds_reflash.', reason);
-        });
-    }
+    service: WebDSService,
+    settingRegistry: ISettingRegistry | null) => {
+    console.log('JupyterLab extension webds_reflash is activated!');
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
-    const command = CommandIDs.reflash;
-    const category = 'WebDS';
+    const command = CommandIDs.id;
+    const category = 'WebDS'
     const extension_string = 'Reflash';
 
 
@@ -63,10 +53,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
 	  icon: extensionReflashIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(service);
+          let content = new ShellWidget(service, settingRegistry);
 
           widget = new WebDSWidget<ShellWidget>({ content });
-          widget.id = 'reflash';
+          widget.id = 'webds_reflash_widget';
           widget.title.label = extension_string;
           widget.title.closable = true;
           widget.title.icon = extensionReflashIcon;
