@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useState } from 'react';
+
 import { ThemeProvider } from "@mui/material/styles";
 import { WebDSService } from '@webds/service';
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
@@ -10,6 +12,8 @@ import {
     Paper
 } from '@mui/material';
 
+import ShowContent from "./widget_content";
+import ShowControl from "./widget_control";
 
 export default function MainWidget(
     props: {
@@ -17,27 +21,28 @@ export default function MainWidget(
         settingRegistry?: ISettingRegistry | null;
     }
 ) {
+    const [start, setStart] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [filelist, setFileList] = useState<string[]>([]);
+    const [packratError, setPackratError] = useState(false);
+    const [packrat, setPackrat] = useState("");
 
     const webdsTheme = props.service.ui.getWebDSTheme();
 
-    function ShowContent() {
-        return (
-            <Typography>
-                Content
-            </Typography>
-        );
-    }
-
-    function ShowControl() {
-        return (
-            <Typography>
-                Control
-            </Typography>
-        );
-    }
-
     const WIDTH = 800;
     const HEIGHT_TITLE = 70;
+
+    function onProgress(progress: number) {
+        setProgress(progress);
+    }
+
+    function onStart(start: boolean) {
+        setStart(start);
+    }
+
+    function onMessage(message: string) {
+        console.log("message!!!");
+    }
 
     function showAll() {
         return (
@@ -74,7 +79,12 @@ export default function MainWidget(
                         bgcolor: "section.main",
                     }}
                 >
-                    {ShowContent()}
+                    {ShowContent({
+                        service: props.service, start: start, progress: progress,
+                        setPackratError: setPackratError,
+                        setFileList: setFileList,
+                        setPackrat: setPackrat
+                    })}
                 </Stack>
                 <Stack
                     direction="row"
@@ -86,7 +96,8 @@ export default function MainWidget(
                         py: 1,
                     }}
                 >
-                    {ShowControl()}
+                    <ShowControl title="Reflash" list={filelist} error={packratError}
+                        onStart={onStart} onProgress={onProgress} onMessage={onMessage} service={props.service} packrat={packrat} />
                 </Stack>
             </Stack>
         );
