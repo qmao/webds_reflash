@@ -21,6 +21,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DehazeOutlinedIcon from '@mui/icons-material/DehazeOutlined';
 import { requestAPI } from './handler';
 import { WebDSService } from '@webds/service';
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from '@mui/material/CssBaseline';
+
 
 const PACKRAT_WIDTH = 225
 
@@ -309,6 +312,8 @@ export default function ShowContent(props: Props) {
 
     return (
         <div>
+            <ThemeProvider theme={webdsTheme}>
+                <CssBaseline />
             <Collapse in={isAlert}>
                 <Alert severity={severityRef.current} onClose={() => setAlert(false)}>
                     <AlertTitle> {resultRef.current} </AlertTitle>
@@ -321,7 +326,7 @@ export default function ShowContent(props: Props) {
                 direction="row"
                 justifyContent="center"
                 alignItems="flex-start"
-                sx={{ mr: 8, py: 3 }}
+                sx={{ mr: 8, mb:4, py: 3 }}
             >
                 <Stack spacing={1}
                     direction="column"
@@ -362,11 +367,9 @@ export default function ShowContent(props: Props) {
                     alignItems: "center",
                     width: 275
                 }}>
-                    <Paper elevation={0} sx={{ bgcolor: "section.main" }}>
-                        <Typography sx={{ m: 1, textAlign: 'center' }}>
-                            {open ? "Image Files" : "Packrat"}
-                        </Typography>
-                    </Paper>
+                    <Typography sx={{ m: 1, textAlign: 'center' }}>
+                        {open ? "Image Files" : "Packrat"}
+                    </Typography>
 
                     {open ?
                         <Paper variant="outlined" sx={{ m: 0, p: 0, minWidth: 265, /*minHeight: 42*/ }}>
@@ -388,6 +391,7 @@ export default function ShowContent(props: Props) {
                     }
                 </Stack>
             </Stack>
-        </div>
+            </ThemeProvider>
+            </div>
     );
 }
