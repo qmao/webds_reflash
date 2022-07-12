@@ -14,6 +14,7 @@ import {
 
 import { ShowContent } from "./widget_content";
 import { ShowControl } from "./widget_control";
+import { SeverityType } from './widget_content';
 
 export default function MainWidget(
     props: {
@@ -26,6 +27,10 @@ export default function MainWidget(
     const [filelist, setFileList] = useState<string[]>([]);
     const [packratError, setPackratError] = useState(false);
     const [packrat, setPackrat] = useState("");
+    const [serverity, setServerity] = useState<SeverityType>("info");
+    const [message, setMessage] = useState("");
+    const [link, setLink] = useState("");
+    const [alert, setAlert] = useState(false);
 
     const webdsTheme = props.service.ui.getWebDSTheme();
 
@@ -42,9 +47,12 @@ export default function MainWidget(
         console.log("WIDGET START", value);
     }
 
-    function onMessage(message: string) {
-        console.log("WIDGET MESSAGE", message);
-        console.log("message!!!");
+    function onMessage(serverityParam: SeverityType, messageParam: string, linkParam: string) {
+        console.log("WIDGET MESSAGE", serverity, message, link);
+        setAlert(true);
+        setServerity(() => { return serverityParam });
+        setMessage(messageParam);
+        setLink(linkParam);
     }
 
     function showAll() {
@@ -88,6 +96,10 @@ export default function MainWidget(
                         setPackratError={setPackratError}
                         setFileList={setFileList}
                         setPackrat={setPackrat}
+                        severity={serverity}
+                        message={message}
+                        link={link}
+                        alert={alert}
                     />
                 </Stack>
                 <Stack

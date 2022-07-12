@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     Typography,
@@ -27,6 +27,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 const PACKRAT_WIDTH = 225
 
+export type SeverityType = 'error' | 'info' | 'success' | 'warning';
+
 interface Props {
     service: WebDSService;
     start: boolean;
@@ -34,6 +36,10 @@ interface Props {
     setFileList: any;
     setPackratError: any;
     setPackrat: any;
+    message: string;
+    severity: SeverityType;
+    link: string;
+    alert: boolean;
 }
 
 export const ShowContent = (props: Props): JSX.Element => {
@@ -42,11 +48,11 @@ export const ShowContent = (props: Props): JSX.Element => {
     const [open, setOpen] = useState(false);
     const [filelist, setFileList] = useState<string[]>([]);
     const [select, setSelect] = useState("");
-    const [isAlert, setAlert] = useState(false);
-    const messageRef = useRef("");
-    const severityRef = useRef<SeverityType>('info');
-    const resultRef = useRef("");
-    const linkRef = React.useRef("");
+    const [isAlert, setAlert] = useState(props.alert);
+    const [message, setMessage] = useState(props.message);
+    const [severity, setSeverity] = useState<SeverityType>(props.severity);
+    const [link, setLink] = useState(props.link);
+    const [result, setResult] = useState("");
 
     const fetchData = async () => {
         const data = await get_lists();
@@ -90,6 +96,13 @@ export const ShowContent = (props: Props): JSX.Element => {
         console.log(props.start);
         if (props.start)
             setAlert(false);
+        else {
+            if (props.message != "") {
+                setAlert(true);
+                setMessage(props.message);
+                setSeverity(props.severity);
+            }
+        }
         setOpen(false);
     }, [props.start]);
 
@@ -137,16 +150,16 @@ export const ShowContent = (props: Props): JSX.Element => {
         console.log("onFileSelect:", file);
     };
 
-    const onMessage = (severity: SeverityType, message: string, link: string) => {
-        messageRef.current = message;
-        severityRef.current = severity;
-        resultRef.current = severity.toUpperCase();
-        linkRef.current = link;
+    const onMessage = (severityParam: SeverityType, messageParam: string, linkParam: string) => {
+        setMessage(messageParam);
+        setSeverity(severityParam);
+        setResult(severityParam.toUpperCase());
+        setLink(linkParam);
 
-        console.log(severityRef.current);
-        console.log(messageRef.current);
-        console.log(resultRef.current);
-        console.log(linkRef.current);
+        console.log(severityParam);
+        console.log(messageParam);
+        console.log(result);
+        console.log(link);
 
         setAlert(true);
     };
@@ -295,17 +308,15 @@ export const ShowContent = (props: Props): JSX.Element => {
         );
     }
 
-    type SeverityType = 'error' | 'info' | 'success' | 'warning';
-
     return (
         <div>
             <ThemeProvider theme={webdsTheme}>
                 <CssBaseline />
             <Collapse in={isAlert}>
-                <Alert severity={severityRef.current} onClose={() => setAlert(false)}>
-                    <AlertTitle> {resultRef.current} </AlertTitle>
-                    {messageRef.current}
-                    <Link href={linkRef.current}>{linkRef.current}</Link>
+                <Alert severity={severity} onClose={() => setAlert(false)}>
+                    <AlertTitle> {result} </AlertTitle>
+                    { message }
+                    <Link href={ link }>{ link }</Link>
                 </Alert>
             </Collapse>
 
