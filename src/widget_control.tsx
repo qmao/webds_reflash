@@ -24,7 +24,7 @@ declare global {
     var source: EventSource;
 }
 
-export default function ShowControl(props: Props) {
+export const ShowControl = (props: Props): JSX.Element => {
     const { children, value, index, title, alert, error, list, onStart, onProgress, onMessage, ...other } = props;
     const [disable, setDisable] = useState(false);
     const [progress, setProgress] = React.useState(0);

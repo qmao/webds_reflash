@@ -36,16 +36,12 @@ interface Props {
     setPackrat: any;
 }
 
-export default function ShowContent(props: Props) {
-
+export const ShowContent = (props: Props): JSX.Element => {
     const [packrat, setPackrat] = useState("3318382");
     const [packratError, setPackratError] = useState(false);
     const [open, setOpen] = useState(false);
     const [filelist, setFileList] = useState<string[]>([]);
     const [select, setSelect] = useState("");
-    const [start, setStart] = useState(false);
-    const [progress, setProgress] = useState(0);
-
     const [isAlert, setAlert] = useState(false);
     const messageRef = useRef("");
     const severityRef = useRef<SeverityType>('info');
@@ -59,9 +55,6 @@ export default function ShowContent(props: Props) {
 
     useEffect(() => {
         fetchData();
-
-        setStart(false);
-        setProgress(0);
     }, []);
 
     useEffect(() => {
@@ -94,17 +87,11 @@ export default function ShowContent(props: Props) {
     }, [open]);
 
     useEffect(() => {
-        console.log(start);
-        if (start)
+        console.log(props.start);
+        if (props.start)
             setAlert(false);
-        setStart(start);
         setOpen(false);
     }, [props.start]);
-
-    useEffect(() => {
-        console.log(progress);
-        setProgress(progress);
-    }, [props.progress]);
 
     useEffect(() => {
         if (open) {
@@ -376,8 +363,8 @@ export default function ShowContent(props: Props) {
                             <FileList list={filelist} onDelete={onFileDelete} onSelect={onFileSelect} select={select} />
                         </Paper>
                         :
-                        start ?
-                            <TextFieldWithProgress packrat={packrat} progress={progress} />
+                        props.start ?
+                            <TextFieldWithProgress packrat={packrat} progress={props.progress} />
                             :
                             <TextField id="filled-basic"
                                 value={packrat}

@@ -12,8 +12,8 @@ import {
     Paper
 } from '@mui/material';
 
-import ShowContent from "./widget_content";
-import ShowControl from "./widget_control";
+import { ShowContent } from "./widget_content";
+import { ShowControl } from "./widget_control";
 
 export default function MainWidget(
     props: {
@@ -32,15 +32,18 @@ export default function MainWidget(
     const WIDTH = 800;
     const HEIGHT_TITLE = 70;
 
-    function onProgress(progress: number) {
-        setProgress(progress);
+    function onProgress(value: number) {
+        setProgress(prevState => { return value});
+        console.log("WIDGET PROGRESS", value);
     }
 
-    function onStart(start: boolean) {
-        setStart(start);
+    function onStart(value: boolean) {
+        setStart(prevState => { return value });
+        console.log("WIDGET START", value);
     }
 
     function onMessage(message: string) {
+        console.log("WIDGET MESSAGE", message);
         console.log("message!!!");
     }
 
@@ -79,12 +82,13 @@ export default function MainWidget(
                         bgcolor: "section.main",
                     }}
                 >
-                    {ShowContent({
-                        service: props.service, start: start, progress: progress,
-                        setPackratError: setPackratError,
-                        setFileList: setFileList,
-                        setPackrat: setPackrat
-                    })}
+                    <ShowContent service={props.service}
+                        start={start}
+                        progress={progress}
+                        setPackratError={setPackratError}
+                        setFileList={setFileList}
+                        setPackrat={setPackrat}
+                    />
                 </Stack>
                 <Stack
                     direction="row"
