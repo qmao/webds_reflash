@@ -36,6 +36,7 @@ export default function MainWidget(
 
     const WIDTH = 800;
     const HEIGHT_TITLE = 70;
+    const HEIGHT_CONTROLS = 100;
 
     function onProgress(value: number) {
         setProgress(prevState => { return value});
@@ -108,8 +109,8 @@ export default function MainWidget(
                     alignItems="center"
                     sx={{
                         width: WIDTH + "px",
+                        minHeight: HEIGHT_CONTROLS + "px",
                         bgcolor: "section.main",
-                        py: 1,
                     }}
                 >
                     <ShowControl title="Reflash" list={filelist} error={packratError}
