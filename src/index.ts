@@ -20,9 +20,10 @@ namespace ExtensionParameter {
   export const name = 'webds-reflash';
   export const landingIcon = extensionReflashIcon;
   export const titleIcon = extensionReflashIcon;
-  export const category = 'WebDS';
+  export const category = 'Touch - Bootstrapping';
   export const title = 'Reflash';
   export const id = 'webds:webds-reflash';
+  export const rank = 20;
 }
 
 /**
@@ -76,7 +77,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Add launcher
     launcher.add({
       command: command,
-      category: category
+      category: category,
+      rank: ExtensionParameter.rank
     });
 
     let tracker = new WidgetTracker<WebDSWidget>({ namespace: `${ExtensionParameter.name}` });
