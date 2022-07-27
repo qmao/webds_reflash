@@ -20,13 +20,10 @@ export class ShellWidget extends ReactWidget {
         this.addClass('jp-webds-widget');
         this._service = service;
         this._settingRegistry = settingRegistry || null;
-    }
-
-    handleChangeFile(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.currentTarget.files);
+        console.log(this._settingRegistry);
     }
 
     render(): JSX.Element {
-        return <MainWidget service={this._service} settingRegistry={this._settingRegistry}/>;
+        return <MainWidget service={this._service}/>;
     }
 }

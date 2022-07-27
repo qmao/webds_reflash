@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { ThemeProvider } from "@mui/material/styles";
 import { WebDSService } from '@webds/service';
-import { ISettingRegistry } from "@jupyterlab/settingregistry";
 
 import {
     Stack,
@@ -19,7 +18,6 @@ import { SeverityType } from './widget_content';
 export default function MainWidget(
     props: {
         service: WebDSService;
-        settingRegistry?: ISettingRegistry | null;
     }
 ) {
     const [start, setStart] = useState(false);
