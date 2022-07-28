@@ -20,7 +20,7 @@ namespace ExtensionParameter {
   export const name = 'webds-reflash';
   export const landingIcon = extensionReflashIcon;
   export const titleIcon = extensionReflashIcon;
-  export const category = 'Touch - Bootstrapping';
+  export const category = 'Firmware Install';
   export const title = 'Reflash';
   export const id = 'webds:webds-reflash';
   export const rank = 20;
