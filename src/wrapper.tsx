@@ -10,13 +10,15 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 * A Counter Lumino Widget that wraps a CounterComponent.
 */
 export class ShellWidget extends ReactWidget {
+    _id: string;
     _service: WebDSService;
     _settingRegistry: ISettingRegistry | null = null;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(service: WebDSService, settingRegistry?: ISettingRegistry | null) {
+    constructor(id: string, service: WebDSService, settingRegistry?: ISettingRegistry | null) {
         super();
+        this._id = id;
         this.addClass('jp-webds-widget');
         this._service = service;
         this._settingRegistry = settingRegistry || null;
@@ -24,6 +26,14 @@ export class ShellWidget extends ReactWidget {
     }
 
     render(): JSX.Element {
-        return <MainWidget service={this._service}/>;
+        return (
+            <div id={this._id + "_container"} className="jp-webds-widget-container">
+                <div id={this._id + "_content"} className="jp-webds-widget">
+                    <MainWidget service={this._service} />
+                </div>
+                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
+                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>
+            </div>
+        )
     }
 }

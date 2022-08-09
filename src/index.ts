@@ -55,7 +55,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 	  icon: ExtensionParameter.landingIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(service, settingRegistry);
+          let content = new ShellWidget(ExtensionParameter.id, service, settingRegistry);
 
           widget = new WebDSWidget<ShellWidget>({ content });
           widget.id = `${ExtensionParameter.name}_widget`;
