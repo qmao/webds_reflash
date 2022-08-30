@@ -58,7 +58,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           let content = new ShellWidget(ExtensionParameter.id, service, settingRegistry);
 
           widget = new WebDSWidget<ShellWidget>({ content });
-          widget.id = `${ExtensionParameter.name}_widget`;
+          widget.id = ExtensionParameter.id;
           widget.title.label = extension_string;
           widget.title.closable = true;
           widget.title.icon = ExtensionParameter.landingIcon;

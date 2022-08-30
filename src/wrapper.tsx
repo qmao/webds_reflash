@@ -19,7 +19,6 @@ export class ShellWidget extends ReactWidget {
     constructor(id: string, service: WebDSService, settingRegistry?: ISettingRegistry | null) {
         super();
         this._id = id;
-        this.addClass('jp-webds-widget');
         this._service = service;
         this._settingRegistry = settingRegistry || null;
         console.log(this._settingRegistry);
