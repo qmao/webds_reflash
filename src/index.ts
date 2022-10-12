@@ -42,6 +42,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry | null) => {
     console.log(`JupyterLab extension ${ExtensionParameter.name} is activated!`);
 
+    await service.initialized;
+
     let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = ExtensionParameter.id;
@@ -71,8 +73,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
           shell.add(widget, 'main');
 
         shell.activateById(widget.id);
-
-        widget.setShadows();
       }
     });
 
