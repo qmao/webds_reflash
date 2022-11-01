@@ -2,14 +2,14 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import React  from 'react';
 
 import { WebDSService } from '@webds/service';
-import MainWidget from './widget';
+import ReflashComponent from './ReflashComponent';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 
 /**
 * A Counter Lumino Widget that wraps a CounterComponent.
 */
-export class ShellWidget extends ReactWidget {
+export class ReflashWidget extends ReactWidget {
     _id: string;
     _service: WebDSService;
     _settingRegistry: ISettingRegistry | null = null;
@@ -28,7 +28,7 @@ export class ShellWidget extends ReactWidget {
         return (
             <div id={this._id + "_container"} className="jp-webds-widget-container">
                 <div id={this._id + "_content"} className="jp-webds-widget">
-                    <MainWidget service={this._service} />
+                    <ReflashComponent service={this._service} />
                 </div>
                 <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
                 <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>

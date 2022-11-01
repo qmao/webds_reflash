@@ -15,7 +15,7 @@ import { ShowContent } from "./widget_content";
 import { ShowControl } from "./widget_control";
 import { SeverityType } from './widget_content';
 
-export default function MainWidget(
+export default function ReflashComponent(
     props: {
         service: WebDSService;
     }

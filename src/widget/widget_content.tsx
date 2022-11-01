@@ -19,7 +19,7 @@ import { green } from '@mui/material/colors';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DehazeOutlinedIcon from '@mui/icons-material/DehazeOutlined';
-import { requestAPI } from './handler';
+import { requestAPI } from './../handler';
 import { WebDSService } from '@webds/service';
 import { ThemeProvider } from "@mui/material/styles";
 

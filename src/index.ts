@@ -10,7 +10,7 @@ import { WidgetTracker } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
 
-import { ShellWidget } from './wrapper'
+import { ReflashWidget } from './widget/ReflashWidget'
 
 import { extensionReflashIcon } from './icons';
 
@@ -57,9 +57,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       icon: ExtensionParameter.landingIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(ExtensionParameter.id, service, settingRegistry);
+          let content = new ReflashWidget(ExtensionParameter.id, service, settingRegistry);
 
-          widget = new WebDSWidget<ShellWidget>({ content });
+          widget = new WebDSWidget<ReflashWidget>({ content });
           widget.id = ExtensionParameter.id;
           widget.title.label = extension_string;
           widget.title.closable = true;
