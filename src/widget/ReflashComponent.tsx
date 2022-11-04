@@ -5,15 +5,13 @@ import { useState } from 'react';
 import { ThemeProvider } from "@mui/material/styles";
 import { WebDSService } from '@webds/service';
 
-import {
-    Stack,
-    Typography,
-    Paper
-} from '@mui/material';
-
 import { ShowContent } from "./widget_content";
 import { ShowControl } from "./widget_control";
 import { SeverityType } from './widget_content';
+
+import { Canvas } from "./mui_extensions/Canvas";
+import { Content } from "./mui_extensions/Content";
+import { Controls } from "./mui_extensions/Controls";
 
 export default function ReflashComponent(
     props: {
@@ -31,10 +29,6 @@ export default function ReflashComponent(
     const [alert, setAlert] = useState(false);
 
     const webdsTheme = props.service.ui.getWebDSTheme();
-
-    const WIDTH = 800;
-    const HEIGHT_TITLE = 70;
-    const HEIGHT_CONTROLS = 100;
 
     function onProgress(value: number) {
         setProgress(prevState => { return value});
@@ -56,39 +50,8 @@ export default function ReflashComponent(
 
     function showAll() {
         return (
-            <Stack spacing={2}>
-                <Paper
-                    elevation={0}
-                    sx={{
-                        width: WIDTH + "px",
-                        height: HEIGHT_TITLE + "px",
-                        position: "relative",
-                        bgcolor: "section.main"
-                    }}
-                >
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)"
-                        }}
-                    >
-                        Reflash
-                    </Typography>
-                </Paper>
-
-                <Stack
-                    direction="column"
-                    justifyContent="center"
-                    alignItems="stretch"
-
-                    sx={{
-                        width: WIDTH + "px",
-                        bgcolor: "section.main",
-                    }}
-                >
+            <Canvas title="Reflash">
+                <Content>
                     <ShowContent service={props.service}
                         start={start}
                         progress={progress}
@@ -100,21 +63,19 @@ export default function ReflashComponent(
                         link={link}
                         alert={alert}
                     />
-                </Stack>
-                <Stack
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
+                </Content>
+                <Controls
                     sx={{
-                        width: WIDTH + "px",
-                        minHeight: HEIGHT_CONTROLS + "px",
-                        bgcolor: "section.main",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center"
                     }}
                 >
                     <ShowControl title="Reflash" list={filelist} error={packratError}
                         onStart={onStart} onProgress={onProgress} onMessage={onMessage} service={props.service} packrat={packrat} />
-                </Stack>
-            </Stack>
+                </Controls>
+            </Canvas>
         );
     }
 
