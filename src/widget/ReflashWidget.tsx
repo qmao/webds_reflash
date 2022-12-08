@@ -26,12 +26,8 @@ export class ReflashWidget extends ReactWidget {
 
     render(): JSX.Element {
         return (
-            <div id={this._id + "_container"} className="jp-webds-widget-container">
-                <div id={this._id + "_content"} className="jp-webds-widget">
-                    <ReflashComponent service={this._service} />
-                </div>
-                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
-                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>
+            <div id={this._id + "_component"} >
+                <ReflashComponent service={this._service} />
             </div>
         )
     }
