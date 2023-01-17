@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { requestAPI } from './../handler';
+import { requestAPI, webdsService } from './local_exports';
 
 import { Box, Typography, Button } from '@mui/material';
 import { ThemeProvider } from "@mui/material/styles";
-import { WebDSService } from '@webds/service';
 
 interface Props {
     children?: React.ReactNode;
@@ -17,7 +16,6 @@ interface Props {
     onStart: any;
     onProgress: any;
     onMessage: any;
-    service: WebDSService;
 }
 
 declare global {
@@ -165,7 +163,7 @@ export const ShowControl = (props: Props): JSX.Element => {
         console.log(packrat);
         let path = '';
         try {
-            let files = await props.service.packrat.cache.addPackratFiles(['img'], Number(packrat!));
+            let files = await webdsService.packrat.cache.addPackratFiles(['img'], Number(packrat!));
             path = packrat + "/PR" + packrat + '.img';
             console.log(files);
             console.log(path);
@@ -177,7 +175,7 @@ export const ShowControl = (props: Props): JSX.Element => {
         return Promise.resolve("Image file not found");
     }
 
-    const webdsTheme = props.service.ui.getWebDSTheme();
+    const webdsTheme = webdsService.ui.getWebDSTheme();
 
     return (
         <ThemeProvider theme={webdsTheme}>

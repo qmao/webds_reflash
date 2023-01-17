@@ -26,6 +26,9 @@ namespace ExtensionParameter {
   export const rank = 20;
 }
 
+export let webdsService: WebDSService;
+export let settingRegistry: ISettingRegistry;
+
 /**
  * Initialization data for the extension.
  */
@@ -42,6 +45,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry | null) => {
     console.log(`JupyterLab extension ${ExtensionParameter.name} is activated!`);
 
+	webdsService = service;
+	settingRegistry = settingRegistry;
+
     let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = ExtensionParameter.id;
@@ -55,7 +61,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       icon: ExtensionParameter.landingIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ReflashWidget(ExtensionParameter.id, service, settingRegistry);
+          let content = new ReflashWidget(ExtensionParameter.id);
 
           widget = new WebDSWidget<ReflashWidget>({ content });
           widget.id = ExtensionParameter.id;

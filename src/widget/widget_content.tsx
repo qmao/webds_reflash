@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { requestAPI, webdsService } from './local_exports';
 
 import {
     Typography,
@@ -19,8 +20,6 @@ import { green } from '@mui/material/colors';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DehazeOutlinedIcon from '@mui/icons-material/DehazeOutlined';
-import { requestAPI } from './../handler';
-import { WebDSService } from '@webds/service';
 import { ThemeProvider } from "@mui/material/styles";
 
 const PACKRAT_WIDTH = 225
@@ -28,7 +27,6 @@ const PACKRAT_WIDTH = 225
 export type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
 interface Props {
-    service: WebDSService;
     start: boolean;
     progress: number;
     setFileList: any;
@@ -268,7 +266,7 @@ export const ShowContent = (props: Props): JSX.Element => {
     }
 
 
-    const webdsTheme = props.service.ui.getWebDSTheme();
+    const webdsTheme = webdsService.ui.getWebDSTheme();
 
     interface TextFieldWithProgressProps {
         packrat: string;

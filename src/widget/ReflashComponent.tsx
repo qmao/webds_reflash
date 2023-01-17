@@ -1,9 +1,8 @@
 import React from "react";
-
+import { webdsService } from './local_exports';
 import { useState } from 'react';
 
 import { ThemeProvider } from "@mui/material/styles";
-import { WebDSService } from '@webds/service';
 
 import { ShowContent } from "./widget_content";
 import { ShowControl } from "./widget_control";
@@ -15,7 +14,6 @@ import { Controls } from "./mui_extensions/Controls";
 
 export default function ReflashComponent(
     props: {
-        service: WebDSService;
     }
 ) {
     const [start, setStart] = useState(false);
@@ -28,7 +26,7 @@ export default function ReflashComponent(
     const [link, setLink] = useState("");
     const [alert, setAlert] = useState(false);
 
-    const webdsTheme = props.service.ui.getWebDSTheme();
+    const webdsTheme = webdsService.ui.getWebDSTheme();
 
     function onProgress(value: number) {
         setProgress(prevState => { return value});
@@ -52,7 +50,7 @@ export default function ReflashComponent(
         return (
             <Canvas title="Reflash">
                 <Content>
-                    <ShowContent service={props.service}
+                    <ShowContent
                         start={start}
                         progress={progress}
                         setPackratError={setPackratError}
@@ -73,7 +71,7 @@ export default function ReflashComponent(
                     }}
                 >
                     <ShowControl title="Reflash" list={filelist} error={packratError}
-                        onStart={onStart} onProgress={onProgress} onMessage={onMessage} service={props.service} packrat={packrat} />
+                        onStart={onStart} onProgress={onProgress} onMessage={onMessage} packrat={packrat} />
                 </Controls>
             </Canvas>
         );
