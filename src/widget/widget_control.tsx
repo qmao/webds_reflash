@@ -35,6 +35,19 @@ export const ShowControl = (props: Props): JSX.Element => {
         message: string;
     }
 
+    const donwloadConfigJson = async () => {
+        let ret: any;
+        if (webdsService.pinormos !== undefined) {
+            const external = webdsService.pinormos.isExternal();
+            if (external) {
+                ret = await webdsService.packrat.cache.addPublicConfig();
+            } else {
+                ret = await webdsService.packrat.cache.addPrivateConfig();
+            }
+            console.log("download config file:", ret)
+        }
+    }
+
     const eventHandler = (event: any) => {
         let obj = JSON.parse(event.data);
         //console.log(obj)
@@ -43,6 +56,7 @@ export const ShowControl = (props: Props): JSX.Element => {
             setProgress(obj.progress);
         }
         if (obj.status && obj.message) {
+            donwloadConfigJson();
             setStatus(false, obj.status == 'success', JSON.stringify(obj.message));
         }
     }
