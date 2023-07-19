@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { requestAPI, webdsService } from './local_exports';
+import { webdsService } from './local_exports';
 
 import { Box, Typography, Button } from '@mui/material';
-import { ThemeProvider } from "@mui/material/styles";
-
+import { Page, PackratSource } from './constants';
+import { start_reflash, start_fetch } from './api';
 interface Props {
     children?: React.ReactNode;
     index?: any;
@@ -11,29 +11,32 @@ interface Props {
     title?: any;
     alert?: any;
     error: any;
-    list: any;
-    packrat: any;
-    onStart: any;
-    onProgress: any;
-    onMessage: any;
-}
-
-declare global {
-    var source: EventSource;
+    ui: any;
+    onUpdate: any;
 }
 
 export const ShowControl = (props: Props): JSX.Element => {
-    const { children, value, index, title, alert, error, list, onStart, onProgress, onMessage, ...other } = props;
-    const [disable, setDisable] = useState(false);
+    const { children, value, index, title, alert, error, ...other } = props;
+    const [disable, setDisable] = useState(true);
     const [progress, setProgress] = React.useState(0);
     const [isStart, setStart] = React.useState(false);
+    const link = useRef('');
 
-    const link = useRef("");
+    // SSE START
+    const eventSource = useRef<undefined | EventSource>(undefined);
+    const eventError = useRef(false);
+    const eventType = 'reflash';
+    const eventRoute = 'http://localhost:8889/webds/reflash';
 
-    interface Response {
-        status: string;
-        message: string;
-    }
+    const removeEvent = () => {
+        const SSE_CLOSED = 2;
+        if (eventSource.current && eventSource.current!.readyState !== SSE_CLOSED) {
+            eventSource.current!.removeEventListener(eventType, eventHandler, false);
+            eventSource.current!.close();
+            eventSource.current = undefined;
+            console.log('SSE EVENT IS REMOVED');
+        }
+    };
 
     const donwloadConfigJson = async () => {
         let ret: any;
@@ -44,9 +47,9 @@ export const ShowControl = (props: Props): JSX.Element => {
             } else {
                 ret = await webdsService.packrat.cache.addPrivateConfig();
             }
-            console.log("download config file:", ret)
+            console.log('download config file:', ret);
         }
-    }
+    };
 
     const eventHandler = (event: any) => {
         let obj = JSON.parse(event.data);
@@ -57,167 +60,151 @@ export const ShowControl = (props: Props): JSX.Element => {
         }
         if (obj.status && obj.message) {
             donwloadConfigJson();
-            setStatus(false, obj.status == 'success', JSON.stringify(obj.message));
+            setStatus(false, obj.status === 'success', JSON.stringify(obj.message));
         }
-    }
+    };
+
+    const errorHandler = (error: any) => {
+        eventError.current = true;
+        removeEvent();
+        //setLoading(false);
+        //showMessage('error', `Error on GET ${eventRoute}`);
+    };
+
+    const addEvent = () => {
+        if (eventSource.current) {
+            return;
+        }
+        eventError.current = false;
+        eventSource.current = new window.EventSource(eventRoute);
+        eventSource.current!.addEventListener(eventType, eventHandler, false);
+        eventSource.current!.addEventListener('error', errorHandler, false);
+    };
+    // SSE END
 
     const go = (file: string) => {
         setStatus(true);
-        globalThis.source = new window.EventSource('/webds/reflash');
-        console.log(globalThis.source);
-        if (globalThis.source != null) {
-            globalThis.source.addEventListener('reflash', eventHandler, false);
-        }
-        else {
-            console.log("event source is null");
-        }
+
+        addEvent();
+
         start_reflash(file)
-            .then(res => {
+            .then((res) => {
                 setStatus(true);
             })
             .catch((error) => {
                 console.log(error, 'Promise error');
+                removeEvent();
                 setStatus(false, false, error);
-         })
-    }
+            });
+    };
 
     useEffect(() => {
-        props.onProgress(progress);
+        let update: any = { ...props.ui };
+        update.progress = progress;
+        props.onUpdate(update);
     }, [progress]);
+
+    useEffect(() => {
+        if (
+            isStart ||
+            props.ui.selectedBlocks.length === 0 ||
+            props.ui.page === Page.FsFile
+        ) {
+            setDisable(true);
+        } else {
+            setDisable(false);
+        }
+    }, [props.ui]);
+
+    const show_result = (pass: boolean, message: string) => {
+        console.log('pass:', pass);
+
+        let result: any = {
+            status: 'done',
+            message: message,
+            severity: pass ? 'success' : 'error',
+            link: link.current
+        };
+
+        let update: any = { ...props.ui };
+        update.result = result;
+        props.onUpdate(update);
+    };
+
+    const setStatus = (start: boolean, status?: boolean, result?: string) => {
+        if (start) {
+            link.current = '';
+        } else {
+            console.log(result);
+            show_result(status!, result || '');
+            setStart(false);
+            removeEvent();
+        }
+
+        setProgress(0);
+    };
 
     useEffect(() => {
         let file: string;
 
-        props.onStart(isStart);
+        let update: any = { ...props.ui };
+        update.start = isStart;
+        update.result.status = 'progress';
+        props.onUpdate(update);
 
         if (isStart) {
+            console.log('START!!!!', props.ui);
+            if (props.ui.packratSource === PackratSource.FsFile) {
+                file = props.ui.fileName;
 
-            let match = props.list.find((element: string) => {
-                if (element.includes(props.packrat)) {
-                    return true;
-                }
-            });
-
-            console.log(props.list);
-
-            if (!match) {
-                console.log("download image from packrat server");
-                file = props.packrat;
-                start_fetch(file).then(res => {
-                    go(res);
-                })
-                .catch((error) => {
-                    console.log(error, 'Promise error');
-                    setStatus(false, false, error);
-                })
-            }
-            else {
-                file = props.packrat + "/" + match;
-                if (file == "") {
-                    setStatus(false, false, "Please choose an image file");
+                if (file === '') {
+                    setStatus(false, false, 'Please choose an image file');
                 }
                 go(file);
+            } else if (props.ui.packratSource === PackratSource.PackratServer) {
+                console.log('download image from packrat server');
+                file = props.ui.packrat;
+                start_fetch(file)
+                    .then((res) => {
+                        go(res);
+                    })
+                    .catch((error) => {
+                        console.log(error, 'Promise error');
+                        setStatus(false, false, error);
+                    });
             }
         }
     }, [isStart]);
 
-    const setStatus = (start: boolean, status?: boolean, result?: string) => {
-        if (start) {
-            link.current = "";
-        }
-        else {
-            console.log(result);
-            show_result(status!, result || '');
-            setStart(false);
-            console.log(globalThis.source)
-            if (globalThis.source != undefined && globalThis.source.addEventListener != null) {
-                globalThis.source.removeEventListener('reflash', eventHandler, false);
-                globalThis.source.close();
-                console.log("close event source");
-            }
-        }
-
-        setProgress(0);
-        setDisable(start);
-    }
-
-    const show_result = (pass: boolean, message: string) => {
-        console.log("pass:", pass);
-
-        onMessage(pass ? "success" : "error", message, link.current);
-
-        console.log(pass);
-    }
-
-    const start_reflash = async (file_name: string): Promise<Response | undefined> => {
-        const action = "start";
-        const dataToSend = {
-            filename: file_name,
-            action: action
-        };
-
-        console.log("filename:", file_name);
-
-        try {
-            const reply = await requestAPI<any>('reflash', {
-                body: JSON.stringify(dataToSend),
-                method: 'POST',
-            });
-            console.log(reply);
-            return Promise.resolve(reply);
-        } catch (e) {
-            console.error(
-                `Error on POST ${dataToSend}.\n${e}`
-            );
-            return Promise.reject((e as Error).message);
-        }
-    }
-
-    const start_fetch = async (packrat: string): Promise<string> => {
-        console.log(packrat);
-        let path = '';
-        try {
-            let files = await webdsService.packrat.cache.addPackratFiles(['img'], Number(packrat!));
-            path = packrat + "/PR" + packrat + '.img';
-            console.log(files);
-            console.log(path);
-            return Promise.resolve(path);
-        }
-        catch (error) {
-            console.log(error);
-        }
-        return Promise.resolve("Image file not found");
-    }
-
-    const webdsTheme = webdsService.ui.getWebDSTheme();
-
     return (
-        <ThemeProvider theme={webdsTheme}>
-            <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'row-reverse',
-                    mb: 1
-            }}>
-                <div {...other}>
-                    <Button disabled={disable || error}
-                        color="primary"
-                        variant="contained"
-                        onClick={() => setStart(true)}
-                        sx={{ width: 150, mt: 1 }}>
-                        { isStart &&
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                mb: 1
+            }}
+        >
+            <div {...other}>
+                <Button
+                    disabled={disable || error}
+                    color="primary"
+                    variant="contained"
+                    onClick={() => setStart(true)}
+                    sx={{ width: 150, mt: 1 }}
+                >
+                    {isStart && (
                         <Typography
                             variant="caption"
                             component="div"
                             color="text.secondary"
-                            sx={{mr:1}}
+                            sx={{ mr: 1 }}
                         >
-                        {`${Math.round(progress)}%`}
+                            {`${Math.round(progress)}%`}
                         </Typography>
-                        }
-                        { title }
-                    </Button>
-                </div>
-            </Box>
-        </ThemeProvider>
+                    )}
+                    {title}
+                </Button>
+            </div>
+        </Box>
     );
-}
+};

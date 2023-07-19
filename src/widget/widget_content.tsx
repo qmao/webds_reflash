@@ -15,138 +15,40 @@ import {
     Link
 } from '@mui/material';
 
-import FileList from './filelist'
+import FileList from './filelist';
 import { green } from '@mui/material/colors';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DehazeOutlinedIcon from '@mui/icons-material/DehazeOutlined';
-import { ThemeProvider } from "@mui/material/styles";
 
-const PACKRAT_WIDTH = 225
+import { Layout, PackratSource, Page } from './constants';
+import { BlockList } from './BlockList';
 
 export type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
 interface Props {
-    start: boolean;
-    progress: number;
-    setFileList: any;
     setPackratError: any;
-    setPackrat: any;
-    message: string;
-    severity: SeverityType;
-    link: string;
-    alert: boolean;
+    ui: any;
+    onUpdate: any;
 }
 
 export const ShowContent = (props: Props): JSX.Element => {
-    const [packrat, setPackrat] = useState("3318382");
     const [packratError, setPackratError] = useState(false);
     const [open, setOpen] = useState(false);
     const [filelist, setFileList] = useState<string[]>([]);
-    const [select, setSelect] = useState("");
-    const [isAlert, setAlert] = useState(props.alert);
-    const [message, setMessage] = useState(props.message);
-    const [severity, setSeverity] = useState<SeverityType>(props.severity);
-    const [link, setLink] = useState(props.link);
-    const [result, setResult] = useState("");
+    const [select, setSelect] = useState('');
+    const [isAlert, setAlert] = useState(false);
+    const [message, setMessage] = useState('');
+    const [severity, setSeverity] = useState<SeverityType>('info');
+    const [link, setLink] = useState('');
+    const [result, setResult] = useState('');
+    const [blockList, setBlockList] = useState([]);
 
-    const fetchData = async () => {
-        const data = await get_lists();
-        console.log('data', data);
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        console.log(packrat);
-        if (packrat === '') {
-            setPackratError(true);
-        }
-        else if (isNaN(+Number(packrat))) {
-            console.log("invalid!!");
-            setPackratError(true);
-        }
-        else {
-            setPackratError(false);
-            props.setPackrat(packrat);
-        }
-    }, [packrat]);
-
-    useEffect(() => {
-        props.setPackratError(packratError);
-    }, [packratError]);
-
-    useEffect(() => {
-        props.setFileList(filelist);
-    }, [filelist]);
-
-    useEffect(() => {
-        if (open) {
-            fetchData();
-        }
-    }, [open]);
-
-    useEffect(() => {
-        console.log(props.start);
-        if (props.start)
-            setAlert(false);
-        else {
-            if (props.message != "") {
-                setAlert(true);
-                setMessage(props.message);
-                setSeverity(props.severity);
-            }
-        }
-        setOpen(false);
-    }, [props.start]);
-
-    useEffect(() => {
-        if (open) {
-            let regex = /PR\d+/g;
-            let packrat_number = select.match(regex);
-            if (packrat_number) {
-                setPackrat(packrat_number[0].substr(2));
-            }
-        }
-    }, [select]);
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setOpen(!open);
-    };
-
-    const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
-        (document.getElementById("icon-button-image") as HTMLInputElement).value = "";
-    }
-
-    const handlFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event);
-
-        if (event.currentTarget.files) {
-            upload_file(event.currentTarget.files[0])
-                .then(() => {
-                    console.log("upload file done");
-                    ////setLoading(false);
-                })
-                .catch(error => {
-                    ////setLoading(false);
-                    onMessage('error', error, '');
-                });
-        }
-    }
-
-    const onFileDelete = (file: string, index: number) => {
-        console.log("onFileDelete:", file);
-        deleteFile(file);
-    };
-
-    const onFileSelect = (file: string) => {
-        setSelect(file);
-        console.log("onFileSelect:", file);
-    };
-
-    const onMessage = (severityParam: SeverityType, messageParam: string, linkParam: string) => {
+    const onMessage = (
+        severityParam: SeverityType,
+        messageParam: string,
+        linkParam: string
+    ) => {
         setMessage(messageParam);
         setSeverity(severityParam);
         setResult(severityParam.toUpperCase());
@@ -160,59 +62,23 @@ export const ShowContent = (props: Props): JSX.Element => {
         setAlert(true);
     };
 
-    const deleteFile = async (filename: string): Promise<string | undefined> => {
-        console.log("delete");
-        let packratnum = filename.split(".")[0].substr(2);
-        const dataToSend = { file: filename };
-
-        console.log(packratnum);
-        console.log(dataToSend);
-
+    const get_list = async (
+        exetension: string
+    ): Promise<string[] | undefined> => {
         try {
-            const url = `packrat/${packratnum}/${filename}`;
-            const reply = await requestAPI<any>(url, { method: 'DELETE' });
-            console.log(reply);
-            await get_lists().then(list => {
-                if (packrat == packratnum) {
-                    if (list!.indexOf(filename) == -1) {
-                        setPackrat("");
-                        setSelect("");
-                    }
-                }
-            });
-
-            return reply;
-        } catch (error) {
-            if (error) {
-                return error.message
-            }
-        }
-    }
-
-
-    const get_list = async (exetension: string): Promise<string[] | undefined> => {
-        try {
-
             const reply = await requestAPI<any>('packrat?extension=' + exetension, {
-                method: 'GET',
+                method: 'GET'
             });
-            console.log(reply);
-
-            let list = reply["filelist"].map((value: string) => {
-                let res = value.split("/");
-                return res[1];
-            });
-            return Promise.resolve(list);
+            return Promise.resolve(reply['filelist']);
         } catch (error) {
             console.log(error);
             return Promise.reject(error.message);
         }
-    }
+    };
 
     const get_lists = async (): Promise<string[] | undefined> => {
         try {
-            let list = await get_list("img");
-
+            let list = await get_list('img');
             setFileList(list!);
             return Promise.resolve(list);
         } catch (error) {
@@ -220,23 +86,22 @@ export const ShowContent = (props: Props): JSX.Element => {
             setFileList([]);
             return Promise.reject(error.message);
         }
-    }
+    };
 
     const upload_img = async (file: File): Promise<string> => {
-        console.log("upload img file:", file);
+        console.log('upload img file:', file);
         const regex = /PR\d+/g;
         const packrat = file.name.match(regex);
         let fileName = '';
         let packratID = '';
 
         try {
-            if (!packrat)
-                return Promise.reject('invalid file name');
-            packratID = packrat![0].substr(2)
-            fileName = 'PR' + packratID + '.img';
+            if (!packrat) return Promise.reject('invalid file name');
+            packratID = packrat![0].substr(2);
+            fileName = file.name;
 
             const formData = new FormData();
-            formData.append("fileToUpload", file, fileName);
+            formData.append('fileToUpload', file, fileName);
 
             await requestAPI<any>('packrat/' + packratID, {
                 body: formData,
@@ -246,25 +111,155 @@ export const ShowContent = (props: Props): JSX.Element => {
             console.error(`Error - POST /webds/packrat/${packratID}\n${error}`);
             return Promise.reject('Failed to upload blob to Packrat cache');
         }
-        return Promise.resolve(fileName);
-    }
+        return Promise.resolve(packratID + '/' + fileName);
+    };
+
+    const deleteFile = async (filename: string): Promise<string | undefined> => {
+        try {
+            const url = `packrat/${filename}`;
+            const reply = await requestAPI<any>(url, { method: 'DELETE' });
+
+            await get_lists().then((list) => {
+                if (list!.indexOf(filename) === -1) {
+                    setPackratError(true);
+                    setSelect('');
+                }
+            });
+
+            return reply;
+        } catch (error) {
+            if (error) {
+                return error.message;
+            }
+        }
+    };
+
+    const get_image_blocks = async (
+        file: string
+    ): Promise<string[] | undefined> => {
+        try {
+            const reply = await requestAPI<any>('image/' + file, {
+                method: 'GET'
+            });
+            return Promise.resolve(reply['data']);
+        } catch (error) {
+            console.log(error);
+            return Promise.reject(error.message);
+        }
+    };
+
+    const onFileDelete = (file: string, index: number) => {
+        console.log('onFileDelete:', file, index);
+        deleteFile(file);
+    };
+
+    const onFileSelect = (file: string) => {
+        setSelect(file);
+        console.log('onFileSelect:', file);
+        get_image_blocks(file).then((block: any) => {
+            setBlockList(block);
+            setOpen(false);
+        });
+    };
 
     const upload_file = async (file: File) => {
-        console.log("upload_file:", file);
-
         if (file) {
             try {
                 let filename = await upload_img(file);
                 await get_lists();
-                setSelect(filename)
-            }
-            catch (error) {
+                onFileSelect(filename);
+            } catch (error) {
                 console.log(error);
-                onMessage('error', error, '')
+                onMessage('error', error, '');
             }
+        }
+    };
+
+    useEffect(() => {
+        if (props.ui.result.status === 'done') {
+            setAlert(true);
+            setMessage(props.ui.result.message);
+            setSeverity(props.ui.result.severity);
+            setLink(props.ui.result.link);
+        } else if (props.ui.result.status === 'progress') {
+            setAlert(false);
+        }
+    }, [props.ui]);
+
+    const fetchData = async () => {
+        const data = await get_lists();
+        console.log('data', data);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        props.setPackratError(packratError);
+    }, [packratError]);
+
+    useEffect(() => {
+        const update: any = {
+            ...props.ui,
+            filelist: filelist
+        };
+        props.onUpdate(update);
+    }, [filelist]);
+
+    useEffect(() => {
+        if (open) {
+            fetchData();
+        }
+        const update: any = {
+            ...props.ui,
+            page: open ? Page.FsFile : Page.PackratServer
+        };
+        props.onUpdate(update);
+    }, [open]);
+
+    useEffect(() => {
+        const update: any = {
+            ...props.ui,
+            packratSource: PackratSource.FsFile,
+            fileName: select,
+            page: Page.PackratServer
+        };
+        props.onUpdate(update);
+
+        console.log('SELECT', select, update);
+    }, [select]);
+
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setOpen(!open);
+    };
+
+    const handleUpload = (event: React.MouseEvent<HTMLElement>) => {
+        (document.getElementById('icon-button-img') as HTMLInputElement).value = '';
+    };
+
+    function resetBlockList() {
+        if (blockList.length !== 0) {
+            setBlockList([]);
+            const update: any = {
+                ...props.ui,
+                selectedBlocks: []
+            };
+            props.onUpdate(update);
         }
     }
 
+    const handlFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.currentTarget.files) {
+            upload_file(event.currentTarget.files[0])
+                .then(() => {
+                    console.log('upload file done');
+                })
+                .catch((error) => {
+                    onMessage('error', error, '');
+                });
+        }
+    };
 
     const webdsTheme = webdsService.ui.getWebDSTheme();
 
@@ -274,9 +269,7 @@ export const ShowContent = (props: Props): JSX.Element => {
         color?: string;
     }
 
-    function TextFieldWithProgress(
-        props: TextFieldWithProgressProps
-    ) {
+    function TextFieldWithProgress(props: TextFieldWithProgressProps) {
         return (
             <Box sx={{ position: 'relative', display: 'inline-flex', mr: 1 }}>
                 <Box
@@ -288,30 +281,145 @@ export const ShowContent = (props: Props): JSX.Element => {
                         position: 'absolute',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'left',
+                        justifyContent: 'left'
                     }}
                 >
-                    <Paper sx={{ bgcolor: green[200], width: (props.progress * PACKRAT_WIDTH / 100), height: 39 }} />
+                    <Paper
+                        sx={{
+                            bgcolor: green[200],
+                            width: (props.progress * Layout.width) / 100,
+                            height: 39
+                        }}
+                    />
                 </Box>
 
                 <TextField
                     value={props.packrat}
                     id="outlined-size-small"
                     size="small"
-                    sx={{ width: PACKRAT_WIDTH }}
+                    sx={{ width: Layout.width }}
                 />
             </Box>
         );
     }
 
+    const start_fetch = async (packrat: string): Promise<string> => {
+        console.log('Packrat:', packrat);
+        let path = '';
+        try {
+            let files = await webdsService.packrat.cache.addPackratFiles(
+                ['img'],
+                Number(packrat!)
+            );
+            path = packrat + '/PR' + packrat + '.img';
+            console.log(files);
+            //console.log(path);
+            return Promise.resolve(path);
+        } catch (error) {
+            console.log(error);
+            return Promise.reject('Image file not found');
+        }
+    };
+
+    const handleBlur = () => {
+        console.log('download image from packrat server');
+        let file: string = props.ui.packrat;
+
+        start_fetch(file)
+            .then((res) => {
+                onFileSelect(res);
+            })
+            .catch((error) => {
+                onMessage('error', error, '');
+            });
+    };
+
+    const handleKeyPress = (event: any) => {
+        if (event.key === 'Enter') {
+            handleBlur();
+        }
+    };
+
+    function LoadMainPackrat() {
+        return (
+            <Stack direction="column" spacing={2}>
+                <TextField
+                    id="filled-basic"
+                    value={
+                        props.ui.packratSource === PackratSource.FsFile
+                            ? props.ui.fileName
+                            : props.ui.packrat
+                    }
+                    onChange={(e) => {
+                        setAlert(false);
+                        resetBlockList();
+
+                        props.ui.packratSource = PackratSource.PackratServer;
+                        const update: any = { ...props.ui, packrat: e.target.value };
+                        props.onUpdate(update);
+                    }}
+                    onKeyPress={handleKeyPress}
+                    onBlur={handleBlur}
+                    error={packratError}
+                    size="small"
+                    sx={{
+                        width: Layout.width
+                    }}
+                />
+                <BlockList
+                    blocks={blockList}
+                    onUpdate={(bs: any) => {
+                        const update: any = {
+                            ...props.ui,
+                            selectedBlocks: bs
+                        };
+                        props.onUpdate(update);
+                        console.log('UPDATE SELECT BLOCKS:', bs);
+                    }}
+                />
+            </Stack>
+        );
+    }
+    function LoadPackratText() {
+        return (
+            <>
+                {open ? (
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            minWidth: Layout.width
+                        }}
+                    >
+                        <FileList
+                            list={filelist}
+                            onDelete={onFileDelete}
+                            onSelect={onFileSelect}
+                            select={select}
+                        />
+                    </Paper>
+                ) : props.ui.start ? (
+                    <TextFieldWithProgress
+                        packrat={
+                            props.ui.packratSource === PackratSource.FsFile
+                                ? props.ui.fileName
+                                : props.ui.packrat
+                        }
+                        progress={props.ui.progress}
+                    />
+                ) : (
+                            <>{LoadMainPackrat()}</>
+                        )}
+            </>
+        );
+    }
+
     return (
         <div>
-            <ThemeProvider theme={webdsTheme}>
             <Collapse in={isAlert}>
                 <Alert severity={severity} onClose={() => setAlert(false)}>
                     <AlertTitle> {result} </AlertTitle>
-                    { message }
-                    <Link href={ link }>{ link }</Link>
+                    {message}
+                    <Link href={link}>{link}</Link>
                 </Alert>
             </Collapse>
 
@@ -319,74 +427,79 @@ export const ShowContent = (props: Props): JSX.Element => {
                 direction="row"
                 justifyContent="center"
                 alignItems="flex-start"
-                sx={{ mr: 8, mb:4, py: 3 }}
+                sx={{
+                    py: 3
+                }}
             >
-                <Stack spacing={1}
-                    direction="column"
-                    justifyContent="flex-start"
-                    sx={{ mt: 5 }}>
-                    <Button variant="text" onClick={handleClick} sx={{ pt: 1 }}>
-                        <Avatar sx={{ bgcolor: webdsTheme.palette.primary.light }} variant="rounded">
-                            {open ?
-                                <CloseIcon fontSize="large" />
-                                :
-                                <DehazeOutlinedIcon fontSize="large" />
-                            }
-                        </Avatar>
-                    </Button>
-                    {open &&
-                        <div>
-                            <input
-                                accept=".img"
-                                id="icon-button-img"
-                                onChange={handlFileChange}
-                                type="file"
-                                hidden
-                            />
-                            <label htmlFor="icon-button-img">
-                                <Button variant="text" onClick={handleUpload} component="span">
-                                    <Avatar sx={{ bgcolor: webdsTheme.palette.primary.light }} variant="rounded">
-                                        <CloudUploadIcon fontSize="large" />
-                                    </Avatar>
-                                </Button>
-                            </label>
-                        </div>
-                    }
-                </Stack>
-
-                <Stack spacing={1} sx={{
-                    flexDirection: 'column',
-                    display: 'flex',
-                    alignItems: "center",
-                    width: 275
-                    }}>
-                        <Paper elevation={0} sx={{ bgcolor: 'transparent' }}>
+                <Stack
+                    spacing={1}
+                    sx={{
+                        flexDirection: 'column',
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}
+                >
+                    <Paper elevation={0} sx={{ bgcolor: 'transparent' }}>
                         <Typography sx={{ m: 1, textAlign: 'center' }}>
-                            {open ? "Image Files" : "Packrat"}
+                            {open
+                                ? 'Select Image Files'
+                                : props.ui.packratSource === PackratSource.FsFile
+                                    ? 'Image Files'
+                                    : 'Packrat'}
                         </Typography>
                     </Paper>
 
-                    {open ?
-                        <Paper variant="outlined" sx={{ m: 0, p: 0, minWidth: 265, /*minHeight: 42*/ }}>
-                            <FileList list={filelist} onDelete={onFileDelete} onSelect={onFileSelect} select={select} />
-                        </Paper>
-                        :
-                        props.start ?
-                            <TextFieldWithProgress packrat={packrat} progress={props.progress} />
-                            :
-                            <TextField id="filled-basic"
-                                value={packrat}
-                                onChange={(e) => setPackrat(e.target.value)}
-                                error={packratError}
-                                size="small"
-                                sx={{
-                                    width: PACKRAT_WIDTH,
-                                }}
-                            />
-                    }
+                    <Stack sx={{ position: 'relative' }}>
+                        {LoadPackratText()}
+
+                        <Stack
+                            spacing={2}
+                            direction="column"
+                            justifyContent="flex-start"
+                            sx={{ position: 'absolute', left: -64 }}
+                        >
+                            <Button variant="text" onClick={handleClick} sx={{ p: 0 }}>
+                                <Avatar
+                                    sx={{ bgcolor: webdsTheme.palette.primary.light }}
+                                    variant="rounded"
+                                >
+                                    {open ? (
+                                        <CloseIcon fontSize="large" />
+                                    ) : (
+                                            <DehazeOutlinedIcon fontSize="large" />
+                                        )}
+                                </Avatar>
+                            </Button>
+                            {open && (
+                                <>
+                                    <input
+                                        accept=".img"
+                                        id="icon-button-img"
+                                        onChange={handlFileChange}
+                                        type="file"
+                                        hidden
+                                    />
+                                    <label htmlFor="icon-button-img">
+                                        <Button
+                                            variant="text"
+                                            onClick={handleUpload}
+                                            component="span"
+                                            sx={{ p: 0 }}
+                                        >
+                                            <Avatar
+                                                sx={{ bgcolor: webdsTheme.palette.primary.light }}
+                                                variant="rounded"
+                                            >
+                                                <CloudUploadIcon fontSize="large" />
+                                            </Avatar>
+                                        </Button>
+                                    </label>
+                                </>
+                            )}
+                        </Stack>
+                    </Stack>
                 </Stack>
             </Stack>
-            </ThemeProvider>
-            </div>
+        </div>
     );
-}
+};
