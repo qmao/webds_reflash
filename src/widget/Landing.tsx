@@ -9,10 +9,8 @@ import { Controls } from './mui_extensions/Controls';
 import { Page, PackratSource } from './constants';
 
 export default function ReflashComponent(props: any) {
-    const [packratError, setPackratError] = useState(false);
-
     const [ui, setUi] = useState({
-        page: Page.PackratServer,
+        page: Page.MainEntry,
         start: false,
         progress: 0,
         packrat: '',
@@ -29,8 +27,8 @@ export default function ReflashComponent(props: any) {
     });
 
     const onUpdate = (u: any) => {
-        //console.log('UPDATE UI OLD', ui);
-        //console.log('UPDATE UI NEW', u);
+        //console.log('----UPDATE UI OLD', ui);
+        //console.log('----UPDATE UI NEW', u);
         if (JSON.stringify(ui) === JSON.stringify(u) && u.force_update === false) {
             return;
         }
@@ -43,11 +41,7 @@ export default function ReflashComponent(props: any) {
     return (
         <Canvas title="Reflash">
             <Content>
-                <ShowContent
-                    setPackratError={setPackratError}
-                    ui={ui}
-                    onUpdate={onUpdate}
-                />
+                <ShowContent ui={ui} onUpdate={onUpdate} />
             </Content>
             <Controls
                 sx={{
@@ -57,12 +51,7 @@ export default function ReflashComponent(props: any) {
                     justifyContent: 'center'
                 }}
             >
-                <ShowControl
-                    title="Reflash"
-                    error={packratError}
-                    ui={ui}
-                    onUpdate={onUpdate}
-                />
+                <ShowControl title="Reflash" ui={ui} onUpdate={onUpdate} />
             </Controls>
         </Canvas>
     );

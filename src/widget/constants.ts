@@ -1,6 +1,6 @@
 export const Page = {
-  PackratServer: 1,
-  FsFile: 2
+  MainEntry: 1,
+  FileSelect: 2
 };
 
 export const PackratSource = {

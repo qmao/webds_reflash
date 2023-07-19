@@ -27,13 +27,11 @@ import { BlockList } from './BlockList';
 export type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
 interface Props {
-    setPackratError: any;
     ui: any;
     onUpdate: any;
 }
 
 export const ShowContent = (props: Props): JSX.Element => {
-    const [packratError, setPackratError] = useState(false);
     const [open, setOpen] = useState(false);
     const [filelist, setFileList] = useState<string[]>([]);
     const [select, setSelect] = useState('');
@@ -121,7 +119,6 @@ export const ShowContent = (props: Props): JSX.Element => {
 
             await get_lists().then((list) => {
                 if (list!.indexOf(filename) === -1) {
-                    setPackratError(true);
                     setSelect('');
                 }
             });
@@ -156,10 +153,14 @@ export const ShowContent = (props: Props): JSX.Element => {
     const onFileSelect = (file: string) => {
         setSelect(file);
         console.log('onFileSelect:', file);
-        get_image_blocks(file).then((block: any) => {
-            setBlockList(block);
-            setOpen(false);
-        });
+        get_image_blocks(file)
+            .then((block: any) => {
+                setBlockList(block);
+                setOpen(false);
+            })
+            .catch((error: any) => {
+                onMessage('error', error, '');
+            });
     };
 
     const upload_file = async (file: File) => {
@@ -181,6 +182,10 @@ export const ShowContent = (props: Props): JSX.Element => {
             setMessage(props.ui.result.message);
             setSeverity(props.ui.result.severity);
             setLink(props.ui.result.link);
+
+            const update = { ...props.ui };
+            update.result.status = 'idle';
+            props.onUpdate(update);
         } else if (props.ui.result.status === 'progress') {
             setAlert(false);
         }
@@ -196,10 +201,6 @@ export const ShowContent = (props: Props): JSX.Element => {
     }, []);
 
     useEffect(() => {
-        props.setPackratError(packratError);
-    }, [packratError]);
-
-    useEffect(() => {
         const update: any = {
             ...props.ui,
             filelist: filelist
@@ -209,25 +210,26 @@ export const ShowContent = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (open) {
+            setAlert(false);
             fetchData();
         }
         const update: any = {
             ...props.ui,
-            page: open ? Page.FsFile : Page.PackratServer
+            page: open ? Page.FileSelect : Page.MainEntry
         };
         props.onUpdate(update);
     }, [open]);
 
     useEffect(() => {
-        const update: any = {
-            ...props.ui,
-            packratSource: PackratSource.FsFile,
-            fileName: select,
-            page: Page.PackratServer
-        };
-        props.onUpdate(update);
-
-        console.log('SELECT', select, update);
+        if (select !== '') {
+            const update: any = {
+                ...props.ui,
+                packratSource: PackratSource.FsFile,
+                fileName: select,
+                page: Page.MainEntry
+            };
+            props.onUpdate(update);
+        }
     }, [select]);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -340,7 +342,23 @@ export const ShowContent = (props: Props): JSX.Element => {
         }
     };
 
+    const handleFocusEvent = () => {
+        setSelect('');
+        setAlert(false);
+        resetBlockList();
+
+        const update: any = {
+            ...props.ui,
+            //packrat: '',
+            packratSource: PackratSource.PackratServer
+        };
+        props.onUpdate(update);
+        console.log('RESET ALL!!!', update);
+    };
+
     function LoadMainPackrat() {
+        console.log('LoadMainPackrat', props.ui);
+
         return (
             <Stack direction="column" spacing={2}>
                 <TextField
@@ -351,16 +369,13 @@ export const ShowContent = (props: Props): JSX.Element => {
                             : props.ui.packrat
                     }
                     onChange={(e) => {
-                        setAlert(false);
-                        resetBlockList();
-
-                        props.ui.packratSource = PackratSource.PackratServer;
                         const update: any = { ...props.ui, packrat: e.target.value };
                         props.onUpdate(update);
                     }}
+                    onFocus={handleFocusEvent}
                     onKeyPress={handleKeyPress}
-                    onBlur={handleBlur}
-                    error={packratError}
+                    //onBlur={handleBlur}
+                    //error={packratError}
                     size="small"
                     sx={{
                         width: Layout.width

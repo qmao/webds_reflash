@@ -10,13 +10,12 @@ interface Props {
     value?: any;
     title?: any;
     alert?: any;
-    error: any;
     ui: any;
     onUpdate: any;
 }
 
 export const ShowControl = (props: Props): JSX.Element => {
-    const { children, value, index, title, alert, error, ...other } = props;
+    const { children, value, index, title, alert, ...other } = props;
     const [disable, setDisable] = useState(true);
     const [progress, setProgress] = React.useState(0);
     const [isStart, setStart] = React.useState(false);
@@ -26,7 +25,7 @@ export const ShowControl = (props: Props): JSX.Element => {
     const eventSource = useRef<undefined | EventSource>(undefined);
     const eventError = useRef(false);
     const eventType = 'reflash';
-    const eventRoute = 'http://localhost:8889/webds/reflash';
+    const eventRoute = '/webds/reflash';
 
     const removeEvent = () => {
         const SSE_CLOSED = 2;
@@ -53,7 +52,6 @@ export const ShowControl = (props: Props): JSX.Element => {
 
     const eventHandler = (event: any) => {
         let obj = JSON.parse(event.data);
-        //console.log(obj)
 
         if (obj.progress) {
             setProgress(obj.progress);
@@ -108,7 +106,7 @@ export const ShowControl = (props: Props): JSX.Element => {
         if (
             isStart ||
             props.ui.selectedBlocks.length === 0 ||
-            props.ui.page === Page.FsFile
+            props.ui.page === Page.FileSelect
         ) {
             setDisable(true);
         } else {
@@ -186,7 +184,7 @@ export const ShowControl = (props: Props): JSX.Element => {
         >
             <div {...other}>
                 <Button
-                    disabled={disable || error}
+                    disabled={disable}
                     color="primary"
                     variant="contained"
                     onClick={() => setStart(true)}

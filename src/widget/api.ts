@@ -40,3 +40,53 @@ export async function start_fetch(packrat: string): Promise<string> {
     return Promise.reject('Image file not found');
   }
 }
+
+export async function get_list(
+  exetension: string
+): Promise<string[] | undefined> {
+  try {
+    const reply = await requestAPI<any>('packrat?extension=' + exetension, {
+      method: 'GET'
+    });
+    return Promise.resolve(reply['filelist']);
+  } catch (error) {
+    console.log(error);
+    return Promise.reject(error.message);
+  }
+}
+
+export async function get_lists(): Promise<string[] | undefined> {
+  try {
+    let list = await get_list('img');
+    return Promise.resolve(list);
+  } catch (error) {
+    console.log(error);
+    return Promise.reject(error.message);
+  }
+}
+
+export async function upload_img(file: File): Promise<string> {
+  console.log('upload img file:', file);
+  const regex = /PR\d+/g;
+  const packrat = file.name.match(regex);
+  let fileName = '';
+  let packratID = '';
+
+  try {
+    if (!packrat) return Promise.reject('invalid file name');
+    packratID = packrat![0].substr(2);
+    fileName = file.name;
+
+    const formData = new FormData();
+    formData.append('fileToUpload', file, fileName);
+
+    await requestAPI<any>('packrat/' + packratID, {
+      body: formData,
+      method: 'POST'
+    });
+  } catch (error) {
+    console.error(`Error - POST /webds/packrat/${packratID}\n${error}`);
+    return Promise.reject('Failed to upload blob to Packrat cache');
+  }
+  return Promise.resolve(packratID + '/' + fileName);
+}
