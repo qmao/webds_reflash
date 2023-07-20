@@ -37,16 +37,28 @@ export const ShowControl = (props: Props): JSX.Element => {
         }
     };
 
-    const donwloadConfigJson = async () => {
-        let ret: any;
+    const donwloadConfigJson = () => {
         if (webdsService.pinormos !== undefined) {
             const external = webdsService.pinormos.isExternal();
             if (external) {
-                ret = await webdsService.packrat.cache.addPublicConfig();
+                webdsService.packrat.cache
+                    .addPublicConfig()
+                    .then((ret: any) => {
+                        console.log('download config file:', ret);
+                    })
+                    .catch((e: any) => {
+                        console.log('download config file failed:', e);
+                    });
             } else {
-                ret = await webdsService.packrat.cache.addPrivateConfig();
+                webdsService.packrat.cache
+                    .addPrivateConfig()
+                    .then((ret: any) => {
+                        console.log('download config file:', ret);
+                    })
+                    .catch((e: any) => {
+                        console.log('download config file failed:', e);
+                    });
             }
-            console.log('download config file:', ret);
         }
     };
 
@@ -57,7 +69,6 @@ export const ShowControl = (props: Props): JSX.Element => {
             setProgress(obj.progress);
         }
         if (obj.status && obj.message) {
-            donwloadConfigJson();
             setStatus(false, obj.status === 'success', JSON.stringify(obj.message));
         }
     };
@@ -137,6 +148,9 @@ export const ShowControl = (props: Props): JSX.Element => {
             show_result(status!, result || '');
             setStart(false);
             removeEvent();
+            if (status) {
+                donwloadConfigJson();
+            }
         }
 
         setProgress(0);

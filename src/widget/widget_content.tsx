@@ -176,6 +176,12 @@ export const ShowContent = (props: Props): JSX.Element => {
         }
     };
 
+    function updateAlertStatus(status: any) {
+        const update = { ...props.ui };
+        update.result.status = status;
+        props.onUpdate(update);
+    }
+
     useEffect(() => {
         if (props.ui.result.status === 'done') {
             setAlert(true);
@@ -183,11 +189,10 @@ export const ShowContent = (props: Props): JSX.Element => {
             setSeverity(props.ui.result.severity);
             setLink(props.ui.result.link);
 
-            const update = { ...props.ui };
-            update.result.status = 'idle';
-            props.onUpdate(update);
+            updateAlertStatus('idle');
         } else if (props.ui.result.status === 'progress') {
             setAlert(false);
+            updateAlertStatus('idle');
         }
     }, [props.ui]);
 
