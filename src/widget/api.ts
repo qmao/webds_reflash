@@ -1,10 +1,14 @@
 import { requestAPI, webdsService } from './local_exports';
 
-export async function start_reflash(file_name: string): Promise<string> {
+export async function start_reflash(
+  file_name: string,
+  blocks: any
+): Promise<string> {
   const action = 'start';
   const dataToSend = {
     filename: file_name,
-    action: action
+    action: action,
+    blocks: blocks
   };
 
   console.log('filename:', file_name);

@@ -8,14 +8,13 @@ interface Props {
     children?: React.ReactNode;
     index?: any;
     value?: any;
-    title?: any;
     alert?: any;
     ui: any;
     onUpdate: any;
 }
 
 export const ShowControl = (props: Props): JSX.Element => {
-    const { children, value, index, title, alert, ...other } = props;
+    const { children, value, index, alert, ...other } = props;
     const [disable, setDisable] = useState(true);
     const [progress, setProgress] = React.useState(0);
     const [isStart, setStart] = React.useState(false);
@@ -96,7 +95,7 @@ export const ShowControl = (props: Props): JSX.Element => {
 
         addEvent();
 
-        start_reflash(file)
+        start_reflash(file, props.ui.selectedBlocks)
             .then((res) => {
                 setStatus(true);
             })
@@ -188,6 +187,14 @@ export const ShowControl = (props: Props): JSX.Element => {
         }
     }, [isStart]);
 
+    function download() {
+        const update: any = {
+            ...props.ui,
+            download: true
+        };
+        props.onUpdate(update);
+    }
+
     return (
         <Box
             sx={{
@@ -197,25 +204,41 @@ export const ShowControl = (props: Props): JSX.Element => {
             }}
         >
             <div {...other}>
-                <Button
-                    disabled={disable}
-                    color="primary"
-                    variant="contained"
-                    onClick={() => setStart(true)}
-                    sx={{ width: 150, mt: 1 }}
-                >
-                    {isStart && (
-                        <Typography
-                            variant="caption"
-                            component="div"
-                            color="text.secondary"
-                            sx={{ mr: 1 }}
-                        >
-                            {`${Math.round(progress)}%`}
-                        </Typography>
-                    )}
-                    {title}
-                </Button>
+                {props.ui.page !== Page.FileSelect && (
+                    <>
+                        {props.ui.selectedBlocks.length === 0 ? (
+                            <Button
+                                disabled={props.ui.packrat === ''}
+                                color="primary"
+                                variant="contained"
+                                onClick={() => download()}
+                                sx={{ width: 150, mt: 1 }}
+                            >
+                                Download
+                            </Button>
+                        ) : (
+                                <Button
+                                    disabled={disable}
+                                    color="primary"
+                                    variant="contained"
+                                    onClick={() => setStart(true)}
+                                    sx={{ width: 150, mt: 1 }}
+                                >
+                                    {isStart && (
+                                        <Typography
+                                            variant="caption"
+                                            component="div"
+                                            color="text.secondary"
+                                            sx={{ mr: 1 }}
+                                        >
+                                            {`${Math.round(progress)}%`}
+                                        </Typography>
+                                    )}
+                Reflash
+                                </Button>
+                            )}
+                    </>
+                )}
             </div>
         </Box>
     );

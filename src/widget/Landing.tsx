@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { ShowContent } from './widget_content';
 import { ShowControl } from './widget_control';
@@ -8,32 +8,41 @@ import { Content } from './mui_extensions/Content';
 import { Controls } from './mui_extensions/Controls';
 import { Page, PackratSource } from './constants';
 
+const defaultUI = {
+    page: Page.MainEntry,
+    start: false,
+    progress: 0,
+    packrat: '',
+    packratSource: PackratSource.PackratServer,
+    fileName: '',
+    fileList: [],
+    selectedBlocks: [],
+    result: {
+        status: 'idle',
+        message: '',
+        severity: 'info',
+        link: ''
+    },
+    download: false
+};
+
 export default function ReflashComponent(props: any) {
-    const [ui, setUi] = useState({
-        page: Page.MainEntry,
-        start: false,
-        progress: 0,
-        packrat: '',
-        packratSource: PackratSource.PackratServer,
-        fileName: '',
-        fileList: [],
-        selectedBlocks: [],
-        result: {
-            status: 'idle',
-            message: '',
-            severity: 'info',
-            link: ''
-        }
-    });
+    const [ui, setUi] = useState(defaultUI);
+    const uiRef = useRef(defaultUI);
 
     const onUpdate = (u: any) => {
         //console.log('----UPDATE UI OLD', ui);
         //console.log('----UPDATE UI NEW', u);
-        if (JSON.stringify(ui) === JSON.stringify(u) && u.force_update === false) {
+        if (
+            JSON.stringify(uiRef.current) === JSON.stringify(u) &&
+            u.force_update === false
+        ) {
             return;
         }
 
-        let update: any = JSON.parse(JSON.stringify(u));
+        uiRef.current = u;
+
+        let update: any = JSON.parse(JSON.stringify(uiRef.current));
         update.force_update = false;
         setUi(update);
     };
@@ -51,7 +60,7 @@ export default function ReflashComponent(props: any) {
                     justifyContent: 'center'
                 }}
             >
-                <ShowControl title="Reflash" ui={ui} onUpdate={onUpdate} />
+                <ShowControl ui={ui} onUpdate={onUpdate} />
             </Controls>
         </Canvas>
     );

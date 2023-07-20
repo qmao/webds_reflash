@@ -190,9 +190,27 @@ export const ShowContent = (props: Props): JSX.Element => {
             setLink(props.ui.result.link);
 
             updateAlertStatus('idle');
+
+            // update block select
+            get_image_blocks(select)
+                .then((block: any) => {
+                    setBlockList(block);
+                })
+                .catch((error: any) => {
+                    onMessage('error', error, '');
+                });
         } else if (props.ui.result.status === 'progress') {
             setAlert(false);
             updateAlertStatus('idle');
+        }
+
+        if (props.ui.download === true) {
+            const update: any = {
+                ...props.ui,
+                download: false
+            };
+            props.onUpdate(update);
+            handleDownload();
         }
     }, [props.ui]);
 
@@ -328,7 +346,7 @@ export const ShowContent = (props: Props): JSX.Element => {
         }
     };
 
-    const handleBlur = () => {
+    const handleDownload = () => {
         console.log('download image from packrat server');
         let file: string = props.ui.packrat;
 
@@ -343,7 +361,7 @@ export const ShowContent = (props: Props): JSX.Element => {
 
     const handleKeyPress = (event: any) => {
         if (event.key === 'Enter') {
-            handleBlur();
+            handleDownload();
         }
     };
 
