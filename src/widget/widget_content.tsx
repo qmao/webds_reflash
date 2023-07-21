@@ -484,7 +484,7 @@ export const ShowContent = (props: Props): JSX.Element => {
                             {open
                                 ? 'Select Image Files'
                                 : props.ui.packratSource === PackratSource.FsFile
-                                    ? 'Image Files'
+                                    ? 'Image File'
                                     : 'Packrat'}
                         </Typography>
                     </Paper>
