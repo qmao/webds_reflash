@@ -22,8 +22,7 @@ const defaultUI = {
         message: '',
         severity: 'info',
         link: ''
-    },
-    download: false
+    }
 };
 
 export default function ReflashComponent(props: any) {

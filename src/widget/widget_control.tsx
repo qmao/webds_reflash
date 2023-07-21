@@ -187,14 +187,6 @@ export const ShowControl = (props: Props): JSX.Element => {
         }
     }, [isStart]);
 
-    function download() {
-        const update: any = {
-            ...props.ui,
-            download: true
-        };
-        props.onUpdate(update);
-    }
-
     return (
         <Box
             sx={{
@@ -207,15 +199,7 @@ export const ShowControl = (props: Props): JSX.Element => {
                 {props.ui.page !== Page.FileSelect && (
                     <>
                         {props.ui.selectedBlocks.length === 0 ? (
-                            <Button
-                                disabled={props.ui.packrat === ''}
-                                color="primary"
-                                variant="contained"
-                                onClick={() => download()}
-                                sx={{ width: 150, mt: 1 }}
-                            >
-                                Download
-                            </Button>
+                            <></>
                         ) : (
                                 <Button
                                     disabled={disable}

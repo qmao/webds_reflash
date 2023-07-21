@@ -41,6 +41,7 @@ export const ShowContent = (props: Props): JSX.Element => {
     const [link, setLink] = useState('');
     const [result, setResult] = useState('');
     const [blockList, setBlockList] = useState([]);
+    const [busy, setBusy] = useState(false);
 
     const onMessage = (
         severityParam: SeverityType,
@@ -203,15 +204,6 @@ export const ShowContent = (props: Props): JSX.Element => {
             setAlert(false);
             updateAlertStatus('idle');
         }
-
-        if (props.ui.download === true) {
-            const update: any = {
-                ...props.ui,
-                download: false
-            };
-            props.onUpdate(update);
-            handleDownload();
-        }
     }, [props.ui]);
 
     const fetchData = async () => {
@@ -350,12 +342,15 @@ export const ShowContent = (props: Props): JSX.Element => {
         console.log('download image from packrat server');
         let file: string = props.ui.packrat;
 
+        setBusy(true);
         start_fetch(file)
             .then((res) => {
                 onFileSelect(res);
+                setBusy(false);
             })
             .catch((error) => {
                 onMessage('error', error, '');
+                setBusy(false);
             });
     };
 
@@ -385,12 +380,14 @@ export const ShowContent = (props: Props): JSX.Element => {
         return (
             <Stack direction="column" spacing={2}>
                 <TextField
+                    disabled={busy}
                     id="filled-basic"
                     value={
                         props.ui.packratSource === PackratSource.FsFile
                             ? props.ui.fileName
                             : props.ui.packrat
                     }
+                    type={props.ui.packratSource === PackratSource.FsFile ? '' : 'number'}
                     onChange={(e) => {
                         const update: any = { ...props.ui, packrat: e.target.value };
                         props.onUpdate(update);
@@ -403,6 +400,11 @@ export const ShowContent = (props: Props): JSX.Element => {
                     sx={{
                         width: Layout.width
                     }}
+                    helperText={
+                        props.ui.packratSource === PackratSource.FsFile
+                            ? ''
+                            : 'Please input the number here. Press ENTER when finished.'
+                    }
                 />
                 <BlockList
                     blocks={blockList}
