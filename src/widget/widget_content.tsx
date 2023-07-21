@@ -375,8 +375,6 @@ export const ShowContent = (props: Props): JSX.Element => {
     };
 
     function LoadMainPackrat() {
-        console.log('LoadMainPackrat', props.ui);
-
         return (
             <Stack direction="column" spacing={2}>
                 <TextField

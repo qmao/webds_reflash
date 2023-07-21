@@ -36,7 +36,6 @@ export const BlockList = (props: any): JSX.Element => {
     }, [props.blocks]);
 
     const handleMouseEnter = (data: any) => {
-        console.log(data);
         const formattedString = `Address: ${data.address.replace(
             /0x(.+)/,
             (_, hexValue) => '0x' + hexValue.toUpperCase()
