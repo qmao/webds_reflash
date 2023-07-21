@@ -5,16 +5,11 @@ import { Box, Typography, Button } from '@mui/material';
 import { Page, PackratSource } from './constants';
 import { start_reflash, start_fetch } from './api';
 interface Props {
-    children?: React.ReactNode;
-    index?: any;
-    value?: any;
-    alert?: any;
     ui: any;
     onUpdate: any;
 }
 
 export const ShowControl = (props: Props): JSX.Element => {
-    const { children, value, index, alert, ...other } = props;
     const [disable, setDisable] = useState(true);
     const [progress, setProgress] = React.useState(0);
     const [isStart, setStart] = React.useState(false);
@@ -195,35 +190,32 @@ export const ShowControl = (props: Props): JSX.Element => {
                 mb: 1
             }}
         >
-            <div {...other}>
-                {props.ui.page !== Page.FileSelect && (
-                    <>
-                        {props.ui.selectedBlocks.length === 0 ? (
-                            <></>
-                        ) : (
-                                <Button
-                                    disabled={disable}
-                                    color="primary"
-                                    variant="contained"
-                                    onClick={() => setStart(true)}
-                                    sx={{ width: 150, mt: 1 }}
+            {props.ui.page !== Page.FileSelect && (
+                <>
+                    {props.ui.selectedBlocks.length !== 0 && (
+                        <Button
+                            disabled={disable}
+                            color="primary"
+                            variant="contained"
+                            onClick={() => setStart(true)}
+                            sx={{ width: 150, mt: 1 }}
+                        >
+                            {isStart && (
+                                <Typography
+                                    variant="caption"
+                                    component="div"
+                                    color="text.secondary"
+                                    sx={{ mr: 1 }}
                                 >
-                                    {isStart && (
-                                        <Typography
-                                            variant="caption"
-                                            component="div"
-                                            color="text.secondary"
-                                            sx={{ mr: 1 }}
-                                        >
-                                            {`${Math.round(progress)}%`}
-                                        </Typography>
-                                    )}
-                Reflash
-                                </Button>
+                                    {`${Math.round(progress)}%`}
+                                </Typography>
                             )}
-                    </>
-                )}
-            </div>
+              Reflash
+                        </Button>
+                    )}
+                </>
+            )}
         </Box>
     );
 };
+

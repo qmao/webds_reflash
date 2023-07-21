@@ -12,7 +12,7 @@ import CheckIcon from '@mui/icons-material/Check';
 
 export const BlockList = (props: any): JSX.Element => {
     const [formats, setFormats] = React.useState<string[]>(() => []);
-    const [info, setInfo] = React.useState('IIIIIIIII');
+    const [info, setInfo] = React.useState('');
 
     useEffect(() => {
         props.onUpdate(formats);
@@ -38,7 +38,7 @@ export const BlockList = (props: any): JSX.Element => {
     const handleMouseEnter = (data: any) => {
         const formattedString = `Address: ${data.address.replace(
             /0x(.+)/,
-            (_, hexValue) => '0x' + hexValue.toUpperCase()
+            (_: any, hexValue: any) => '0x' + hexValue.toUpperCase()
         )}\nLength: 0x${data.length
             .toString(16)
             .toUpperCase()}\nOffset: 0x${data.offset.toString(16).toUpperCase()}`;
