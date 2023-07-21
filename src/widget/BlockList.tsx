@@ -4,13 +4,15 @@ import {
     ToggleButtonGroup,
     ToggleButton,
     Stack,
-    Typography
+    Typography,
+    Tooltip
 } from '@mui/material';
 
 import CheckIcon from '@mui/icons-material/Check';
 
 export const BlockList = (props: any): JSX.Element => {
     const [formats, setFormats] = React.useState<string[]>(() => []);
+    const [info, setInfo] = React.useState('IIIIIIIII');
 
     useEffect(() => {
         props.onUpdate(formats);
@@ -33,6 +35,18 @@ export const BlockList = (props: any): JSX.Element => {
         setFormats(flags);
     }, [props.blocks]);
 
+    const handleMouseEnter = (data: any) => {
+        console.log(data);
+        const formattedString = `Address: ${data.address.replace(
+            /0x(.+)/,
+            (_, hexValue) => '0x' + hexValue.toUpperCase()
+        )}\nLength: 0x${data.length
+            .toString(16)
+            .toUpperCase()}\nOffset: 0x${data.offset.toString(16).toUpperCase()}`;
+
+        setInfo(formattedString);
+    };
+
     return (
         <Stack direction="column" spacing={2} sx={{ pt: 2 }}>
             {props.blocks.length !== 0 && (
@@ -52,19 +66,44 @@ export const BlockList = (props: any): JSX.Element => {
 
                         return (
                             <ToggleButton
-                                key={value.ld}
+                                key={value.id}
                                 size="small"
                                 value={value.id}
                                 aria-label="bold"
                                 onClick={(event) =>
                                     handleFormat(event, isChecked ? [] : [value.id])
                                 }
-                                sx={{ position: 'relative' }}
+                                sx={{ position: 'relative', p: 0 }}
+                                onMouseEnter={() => handleMouseEnter(value)}
                             >
-                                {isChecked && (
-                                    <CheckIcon sx={{ position: 'absolute', right: 30 }} />
-                                )}
-                                <Typography sx={{ fontSize: 12 }}>{value.id}</Typography>
+                                <Tooltip
+                                    title={info}
+                                    placement="right"
+                                    key={`tooltip-${value.id}`}
+                                >
+                                    <Stack
+                                        sx={{
+                                            width: '100%',
+                                            height: '100%',
+                                            p: 1
+                                        }}
+                                        key={`stack-${value.id}`}
+                                    >
+                                        {isChecked && (
+                                            <CheckIcon
+                                                sx={{ position: 'absolute', right: 30 }}
+                                                key={`checkicon-${value.id}`}
+                                            />
+                                        )}
+
+                                        <Typography
+                                            sx={{ fontSize: 12 }}
+                                            key={`typography-${value.id}`}
+                                        >
+                                            {value.id}
+                                        </Typography>
+                                    </Stack>
+                                </Tooltip>
                             </ToggleButton>
                         );
                     }
